@@ -14,3 +14,27 @@
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::auth();
+
+Route::get('/home', 'HomeController@index');
+
+/*
+|--------------------------------------------------------------------------
+| Room Routes
+|--------------------------------------------------------------------------
+|
+*/
+
+Route::post('/addNewRoom', 'RoomsController@addNewRoom');
+Route::get('/getAllRooms', 'RoomsController@getAllRooms');
+Route::get('/myRooms', 'RoomsController@myRooms');
+Route::get('/deleteMyRoom/{id}', 'RoomsController@deleteMyRoom');
+
+/*
+|--------------------------------------------------------------------------
+| Message Routes
+|--------------------------------------------------------------------------
+|
+*/
+Route::post('/addNewMessage', 'MessagesController@addNewRoom');
