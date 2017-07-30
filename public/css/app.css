@@ -1645,11 +1645,9 @@ th {
 }
 
 .bottom_wrapper {
-  position: relative;
   width: 100%;
   background-color: #fff;
   padding: 20px 20px;
-/*  position: absolute;*/
   bottom: 0;
 }
 .bottom_wrapper .message_input_wrapper {

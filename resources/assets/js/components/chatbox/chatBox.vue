@@ -40,14 +40,25 @@ export default {
         return {
             loading: true,
             messages: [],
+            channle: '',
+            room: this.$route.params.room_id + 'room',
         }
     },
     ready: function () {
         this.loading = false;
+
+        this.channel = this.$pusher.subscribe(this.$route.params.room_id + 'room');
+
+        this.channel.bind('AddNewMessage', ({ log }) => {
+            console.log(log);
+        });
+        console.log(this.channel);
+
+
     },
     events: {
         addLastMessage: function (message) {
-            this.messages.push(message);
+//            this.messages.push(message);
         }
     }
 }

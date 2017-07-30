@@ -5,7 +5,7 @@
             <div class="text_wrapper">
                 <div class="text">
                     {{ message.body }}
-                    {{ message.created_at }}
+                    {{ message.created_at | moment "from" }}
                 </div>
             </div>
         </li>

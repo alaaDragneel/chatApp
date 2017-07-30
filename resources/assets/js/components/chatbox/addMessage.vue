@@ -38,7 +38,6 @@ export default {
             this.$http.post('/addNewMessage', data).then((response) => {
                 if (response.body != 'error') {
                     this.body = '';
-                    console.log(response.body);
                     this.$dispatch('addLastMessage', response.body);
                 } else {
                     alertify.error('Error The Message Didn\'t saved Try Again Later');
