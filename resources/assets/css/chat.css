@@ -184,4 +184,14 @@
   display: none;
 }
 
+/*lading Styles*/
+.chat-loading-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+}
+/*lading Styles*/
+
+
 /* chat styles */

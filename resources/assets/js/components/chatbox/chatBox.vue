@@ -41,25 +41,33 @@ export default {
             loading: true,
             messages: [],
             channle: '',
+            pusher: '',
             room: this.$route.params.room_id + 'room',
         }
     },
-    ready: function () {
-        this.loading = false;
-
-        this.channel = this.$pusher.subscribe(this.$route.params.room_id + 'room');
-
-        this.channel.bind('AddNewMessage', ({ log }) => {
-            console.log(log);
-        });
-        console.log(this.channel);
-
-
+    created: function () {
+        console.log('craeted ' + this.messages);
     },
-    events: {
-        addLastMessage: function (message) {
-//            this.messages.push(message);
-        }
-    }
+    ready: function () {
+        var self = this;
+        console.log('ready' + this.messages);
+
+        this.loading = false;
+        /**
+         * [pusher librabry instance]
+         * NOTE This Is the pusher-js Library
+         * @type {Pusher}
+         */
+        this.pusher = new Pusher('2f13ba6c99034dd7203c',{
+            cluster: 'eu',
+        });
+        this.channle = this.pusher.subscribe(this.room);
+
+        this.channle.bind('add_new_message', function(data) {
+            console.log(data[0]);
+            self.messages.push(data[0]);
+
+        });
+    },
 }
 </script>

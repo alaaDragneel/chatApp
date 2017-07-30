@@ -8,14 +8,8 @@ Vue.use(VueRouter);
 // Vue Mement
 var VueMoment = require('vue-moment');
 Vue.use(VueMoment);
-// Vue Pusher
+// Pusher
 require('pusher-js')
-Vue.use(require('vue-pusher'), {
-    api_key: '2f13ba6c99034dd7203c',
-    options: {
-        cluster: 'eu',
-    }
-});
 // Vue Spinner
 var MoonLoader = require('vue-spinner/dist/vue-spinner.min').MoonLoader;
 // make it as global component

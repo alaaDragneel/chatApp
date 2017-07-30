@@ -20,7 +20,7 @@ class MessagesController extends Controller
      * @param Request $request
      * @return string
      */
-    public function addNewRoom(Request $request)
+    public function addNewMessage(Request $request)
     {
         $user = Auth::user();
         $message = new Message();
@@ -30,14 +30,20 @@ class MessagesController extends Controller
         $save = $message->save();
         if ($save) {
             $lastMessage = Message::where('id', $message->id)->with('user')->first();
-
+            /**
+             * [$this->triggerPusher Trigger The Pusher Realtime]
+             */
             $this->triggerPusher($lastMessage->room->id . 'room', 'add_new_message', $lastMessage);
-            return $lastMessage;
         } else {
             return 'error';
         }
     }
-
+    /**
+     * [triggerPusher description]
+     * @param  [string] $room_channel [The Channel That The Data Will Send In]
+     * @param  [string] $event        [The Event Name That WIll Happend]
+     * @param  [Object] $data         [The Data Object NOTE => [The Message]]
+     */
     public function triggerPusher($room_channel, $event, $data)
     {
         $pusher = new \Pusher(env('PUSHER_APP_KEY'), env('PUSHER_APP_SECRET'), env('PUSHER_APP_ID'), ['cluster' => env('PUSHER_APP_CLUSTER')]);

@@ -37,4 +37,4 @@ Route::get('/deleteMyRoom/{id}', 'RoomsController@deleteMyRoom');
 |--------------------------------------------------------------------------
 |
 */
-Route::post('/addNewMessage', 'MessagesController@addNewRoom');
+Route::post('/addNewMessage', 'MessagesController@addNewMessage');
