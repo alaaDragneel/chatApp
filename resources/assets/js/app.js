@@ -10,6 +10,18 @@ var VueMoment = require('vue-moment');
 Vue.use(VueMoment);
 // Pusher
 require('pusher-js')
+// define as a global variable
+
+ /**
+ * [pusher librabry instance]
+ * NOTE This Is the pusher-js Library
+ * @type {Pusher}
+ */
+
+window.pusher = new Pusher('2f13ba6c99034dd7203c',{
+    cluster: 'eu',
+});
+
 // Vue Spinner
 var MoonLoader = require('vue-spinner/dist/vue-spinner.min').MoonLoader;
 // make it as global component

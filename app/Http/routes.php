@@ -30,6 +30,7 @@ Route::post('/addNewRoom', 'RoomsController@addNewRoom');
 Route::get('/getAllRooms', 'RoomsController@getAllRooms');
 Route::get('/myRooms', 'RoomsController@myRooms');
 Route::get('/deleteMyRoom/{id}', 'RoomsController@deleteMyRoom');
+Route::get('/getMeOnline/{room_id}', 'RoomsController@getMeOnline');
 
 /*
 |--------------------------------------------------------------------------

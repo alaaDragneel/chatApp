@@ -23408,6 +23408,18 @@ var VueMoment = require('vue-moment');
 Vue.use(VueMoment);
 // Pusher
 require('pusher-js');
+// define as a global variable
+
+/**
+* [pusher librabry instance]
+* NOTE This Is the pusher-js Library
+* @type {Pusher}
+*/
+
+window.pusher = new Pusher('2f13ba6c99034dd7203c', {
+    cluster: 'eu'
+});
+
 // Vue Spinner
 var MoonLoader = require('vue-spinner/dist/vue-spinner.min').MoonLoader;
 // make it as global component
@@ -23564,38 +23576,67 @@ exports.default = {
         return {
             loading: true,
             messages: [],
-            channle: '',
-            pusher: '',
-            room: this.$route.params.room_id + 'room'
+            channel: '',
+            room: this.$route.params.room_id,
+            onlineUsersCount: ''
         };
     },
 
     created: function created() {
-        console.log('craeted ' + this.messages);
-    },
-    ready: function ready() {
         var self = this;
-        console.log('ready' + this.messages);
-
         this.loading = false;
         /**
-         * [pusher librabry instance]
-         * NOTE This Is the pusher-js Library
-         * @type {Pusher}
+         * [methods Bind The Pusher Events By pusher]
+         * @type {Method}   {First_Method}  {BindEvents} {Bind_New_Message_Events}
+         * @type {Method}   {Second_Method} {UpdateOnlineUsersCount}    {Bind_Update_Online_User_Events}
          */
-        this.pusher = new Pusher('2f13ba6c99034dd7203c', {
-            cluster: 'eu'
-        });
-        this.channle = this.pusher.subscribe(this.room);
-
-        this.channle.bind('add_new_message', function (data) {
-            console.log(data[0]);
-            self.messages.push(data[0]);
-        });
+        this.BindEvents(this.room + 'room', 'add_new_message', this.messages);
+        this.UpdateOnlineUsersCount();
+        this.UpdateOfflineUsersCount();
+    },
+    ready: function ready() {
+        this.loading = false;
+        /**
+         * [methods Get User Where He Is Online]
+         * @type {Method}
+         */
+        this.GetMeOnline();
+    },
+    methods: {
+        /**
+        * [methods Bind The Pusher Events By pusher]
+        * @type {Method}
+        * @param  {String} channelName [The Channel That WIll subscribe]
+        * @param  {String} eventName   [The Event That Will Bind It]
+        * @param  {Array} array       [The rray That Will Push In It]
+        */
+        BindEvents: function BindEvents(channelName, eventName, array) {
+            this.channel = window.pusher.subscribe(channelName);
+            this.channel.bind(eventName, function (data) {
+                array.push(data[0]);
+            });
+        },
+        GetMeOnline: function GetMeOnline() {
+            this.$http.get('/getMeOnline/' + this.room);
+        },
+        UpdateOnlineUsersCount: function UpdateOnlineUsersCount() {
+            var self = this;
+            this.channel = window.pusher.subscribe(this.room + 'online');
+            this.channel.bind('online_user', function (data) {
+                self.onlineUsersCount = data[0];
+            });
+        },
+        UpdateOfflineUsersCount: function UpdateOfflineUsersCount() {
+            var self = this;
+            this.channel = window.pusher.subscribe(this.room + 'offline');
+            this.channel.bind('leave_user', function (data) {
+                self.onlineUsersCount = data[0];
+            });
+        }
     }
 };
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "\n<div class=\"row\">\n    <div v-if=\"!loading\" class=\"col-md-12\">\n        <div class=\"chat_window\">\n            <div class=\"top_menu\">\n                <div class=\"buttons\">\n                    <div class=\"button close\"></div>\n                    <div class=\"button minimize\"></div>\n                    <div class=\"button maximize\"></div>\n                </div>\n                <div class=\"title\">\n                    {{ $route.params.room_name }}\n                </div>\n                <div class=\"buttons\" style=\"right: 30px; top: 17px;\">\n                     <a v-link=\"{path: '/allRooms'}\" class=\"btn btn-primary btn-sm\">All Rooms</a>\n                     <a v-link=\"{path: '/myRooms'}\" class=\"btn btn-success btn-sm\">My Rooms</a>\n                </div>\n            </div>\n            <all_message :messages=\"messages\"></all_message>\n\n            <add_message></add_message>\n\n        </div>\n    </div>\n    <div :class=\"['loading-area', 'col-md-12', {'hidden': !loading}]\">\n        <spinner :loading=\"loading\" color=\"#16a085\"></spinner>\n    </div>\n</div>\n"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "\n<div class=\"row\">\n    <div v-if=\"!loading\" class=\"col-md-12\">\n        <div class=\"chat_window\">\n            <div class=\"top_menu\">\n                <div class=\"buttons\">\n                    Online Users ({{ onlineUsersCount }})\n                </div>\n                <div class=\"title\">\n                    {{ $route.params.room_name }}\n                </div>\n                <div class=\"buttons\" style=\"right: 30px; top: 17px;\">\n                     <a v-link=\"{path: '/allRooms'}\" class=\"btn btn-primary btn-sm\">All Rooms</a>\n                     <a v-link=\"{path: '/myRooms'}\" class=\"btn btn-success btn-sm\">My Rooms</a>\n                </div>\n            </div>\n            <all_message :messages=\"messages\"></all_message>\n\n            <add_message></add_message>\n\n        </div>\n    </div>\n    <div :class=\"['loading-area', 'col-md-12', {'hidden': !loading}]\">\n        <spinner :loading=\"loading\" color=\"#16a085\"></spinner>\n    </div>\n</div>\n"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -23620,7 +23661,7 @@ exports.default = {
     }
 };
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "\n<ul class=\"inbox-nav inbox-divider\">\n    <li v-bind:class=\"{'active': checkRoute('/addRoom')}\">\n        <a v-link=\"{path: '/addRoom'}\">\n            <i class=\"fa fa-plus\"></i> Add Room\n        </a>\n    </li>\n\n    <li v-bind:class=\"{'active': checkRoute('/allRooms')}\">\n        <a v-link=\"{path: '/allRooms'}\">\n            <i class=\"fa fa-inbox\"></i> All Rooms\n        </a>\n    </li>\n\n    <li v-bind:class=\"{'active': checkRoute('/myRooms')}\">\n        <a v-link=\"{path: '/myRooms'}\">\n            <i class=\"fa fa-comments\"></i> My Rooms\n        </a>\n    </li>\n\n    <li v-bind:class=\"{'active': checkRoute('/chat')}\">\n        <a v-link=\"{path: '/chat'}\">\n            <i class=\"fa fa-comment\"></i> chat\n        </a>\n    </li>\n\n</ul>\n"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "\n<ul class=\"inbox-nav inbox-divider\">\n    <li v-bind:class=\"{'active': checkRoute('/addRoom')}\">\n        <a v-link=\"{path: '/addRoom'}\">\n            <i class=\"fa fa-plus\"></i> Add Room\n        </a>\n    </li>\n\n    <li v-bind:class=\"{'active': checkRoute('/allRooms')}\">\n        <a v-link=\"{path: '/allRooms'}\">\n            <i class=\"fa fa-inbox\"></i> All Rooms\n        </a>\n    </li>\n\n    <li v-bind:class=\"{'active': checkRoute('/myRooms')}\">\n        <a v-link=\"{path: '/myRooms'}\">\n            <i class=\"fa fa-comments\"></i> My Rooms\n        </a>\n    </li>\n\n</ul>\n"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)

@@ -4,9 +4,7 @@
             <div class="chat_window">
                 <div class="top_menu">
                     <div class="buttons">
-                        <div class="button close"></div>
-                        <div class="button minimize"></div>
-                        <div class="button maximize"></div>
+                        Online Users ({{ onlineUsersCount }})
                     </div>
                     <div class="title">
                         {{ $route.params.room_name }}
@@ -40,34 +38,63 @@ export default {
         return {
             loading: true,
             messages: [],
-            channle: '',
-            pusher: '',
-            room: this.$route.params.room_id + 'room',
+            channel: '',
+            room: this.$route.params.room_id,
+            onlineUsersCount: '',
         }
     },
     created: function () {
-        console.log('craeted ' + this.messages);
-    },
-    ready: function () {
         var self = this;
-        console.log('ready' + this.messages);
-
         this.loading = false;
         /**
-         * [pusher librabry instance]
-         * NOTE This Is the pusher-js Library
-         * @type {Pusher}
+         * [methods Bind The Pusher Events By pusher]
+         * @type {Method}   {First_Method}  {BindEvents} {Bind_New_Message_Events}
+         * @type {Method}   {Second_Method} {UpdateOnlineUsersCount}    {Bind_Update_Online_User_Events}
          */
-        this.pusher = new Pusher('2f13ba6c99034dd7203c',{
-            cluster: 'eu',
-        });
-        this.channle = this.pusher.subscribe(this.room);
-
-        this.channle.bind('add_new_message', function(data) {
-            console.log(data[0]);
-            self.messages.push(data[0]);
-
-        });
+         this.BindEvents(this.room + 'room', 'add_new_message', this.messages);
+         this.UpdateOnlineUsersCount();
+         this.UpdateOfflineUsersCount();
     },
+    ready: function () {
+        this.loading = false;
+        /**
+         * [methods Get User Where He Is Online]
+         * @type {Method}
+         */
+        this.GetMeOnline();
+
+    },
+    methods: {
+        /**
+        * [methods Bind The Pusher Events By pusher]
+        * @type {Method}
+        * @param  {String} channelName [The Channel That WIll subscribe]
+        * @param  {String} eventName   [The Event That Will Bind It]
+        * @param  {Array} array       [The rray That Will Push In It]
+        */
+        BindEvents: function (channelName, eventName, array) {
+            this.channel = window.pusher.subscribe(channelName);
+            this.channel.bind(eventName, function(data) {
+                array.push(data[0]);
+            });
+        },
+        GetMeOnline: function () {
+            this.$http.get('/getMeOnline/' + this.room);
+        },
+        UpdateOnlineUsersCount: function () {
+            var self = this;
+            this.channel = window.pusher.subscribe(this.room + 'online');
+            this.channel.bind('online_user', function(data) {
+                self.onlineUsersCount = data[0];
+            });
+        },
+        UpdateOfflineUsersCount: function () {
+            var self = this;
+            this.channel = window.pusher.subscribe(this.room + 'offline');
+            this.channel.bind('leave_user', function(data) {
+                self.onlineUsersCount = data[0];
+            });
+        },
+    }
 }
 </script>

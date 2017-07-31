@@ -41,4 +41,13 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\Message', 'user_id');
     }
+
+    /**
+    * [online Relation]
+    * @return [Object] [object contains the relations data]
+    */
+    public function online()
+    {
+        return $this->hasOne('App\whoIsOnline', 'user_id');
+    }
 }

@@ -23,4 +23,13 @@ class Room extends Model
     {
         return $this->hasMany('App\Message', 'room_id');
     }
+    
+    /**
+    * [online Relation]
+    * @return [Object] [object contains the relations data]
+    */
+    public function online()
+    {
+        return $this->hasMany('App\whoIsOnline', 'room_id');
+    }
 }

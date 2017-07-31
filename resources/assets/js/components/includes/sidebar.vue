@@ -18,12 +18,6 @@
             </a>
         </li>
 
-        <li v-bind:class="{'active': checkRoute('/chat')}">
-            <a v-link="{path: '/chat'}">
-                <i class="fa fa-comment"></i> chat
-            </a>
-        </li>
-
     </ul>
 </template>
 
