@@ -49,6 +49,7 @@ Route::group(['middleware' => 'auth'], function () {
     */
 
     Route::post('/addNewMessage', 'MessagesController@addNewMessage');
+    Route::get('/getAuthUser', 'MessagesController@getAuthUser');
 
     /*
     |--------------------------------------------------------------------------

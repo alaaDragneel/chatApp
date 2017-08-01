@@ -18,6 +18,9 @@
                                 <a v-link="{name: '/chatBox', params: {room_id: room.id, room_name: room.name}}">
                                     {{ room.name }}
                                 </a>
+                                <span class="label label-success">
+                                    Online Users <i class="fa fa-users"></i> {{ room.online_count }}
+                                </span>
                             </td>
                             <td>{{ room.user.name }}</td>
                             <td>
@@ -40,9 +43,20 @@ export default {
         return {
             loading: true,
             rooms: [],
+            channel: '',
         }
     },
+    created: function () {
+        var self = this;
+
+        this.channel = window.pusher.subscribe('room');
+        this.channel.bind('room_status', function(data) {
+            self.rooms = data;
+        });
+    },
     ready: function () {
+
+
         this.getAllRooms();
     },
     methods: {
@@ -53,7 +67,7 @@ export default {
             }, (response) => {
                 alertify.error('Error In The Server Try Again Later');
             });
-        }
+        },
     }
 }
 </script>

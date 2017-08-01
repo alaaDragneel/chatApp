@@ -1,6 +1,6 @@
 <template lang="html">
     <ul class="messages" v-sticky-scroll:animate=500>
-        <li class="message right appeared" v-for="message in messages" track-by="$index">
+        <li v-bind:class="['message', 'appeared', {right: isRight(message.user.id), left: !isRight(message.user.id)}]" v-for="message in messages" track-by="$index">
             <div class="avatar">
                 <span v-if="message.user.avatar != '' ">
                     <img v-bind:src="message.user.avatar" v-bind:alt="message.user.name" class="img-responsive img-circle">
@@ -38,11 +38,28 @@ export default {
     props: ['messages'],
     data () {
         return {
-
+            AuthUser: [],
         }
     },
     ready: function () {
-
+        this.getAuthUser();
     },
+    methods: {
+        getAuthUser: function () {
+            this.$http.get('/getAuthUser').then(function (res) {
+                this.AuthUser = res.body;
+            }, function (res) {
+                alertify.error('error in Server Try Again Later');
+            });
+
+        },
+        isRight: function (id) {
+            if (this.AuthUser.id == id) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
 }
 </script>

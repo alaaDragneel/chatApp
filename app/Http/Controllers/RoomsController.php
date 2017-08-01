@@ -13,6 +13,8 @@ use App\whoIsOnline as Online;
 
 use Auth;
 
+use Response;
+
 class RoomsController extends Controller
 {
     public function addNewRoom(addRoomsRequest $request)
@@ -23,6 +25,7 @@ class RoomsController extends Controller
         $room->user_id = $user->id;
         $save = $room->save();
         if ($save) {
+            triggerPusher('room', 'room_status', $this->getAllRooms());
             return 'done';
         } else {
             return 'error';
@@ -31,7 +34,7 @@ class RoomsController extends Controller
 
     public function getAllRooms()
     {
-        $rooms = Room::with('user')->get();
+        $rooms = Room::with('user')->withCount('online')->get();
         return $rooms;
     }
 
@@ -45,10 +48,15 @@ class RoomsController extends Controller
     public function deleteMyRoom($id)
     {
         $user = Auth::user();
-        $rooms = Room::where('id', $id)->where('user_id', $user->id);
-        if ($rooms->count() > 0) {
-            $delete = $rooms->delete();
+        $room = Room::where('id', $id)->where('user_id', $user->id);
+        if ($room->count() > 0) {
+            $roomOnlineUsersCount = $room->withCount('online')->first()->online_count;
+            if ($roomOnlineUsersCount > 0) {
+                return Response::json(['Your Room Not Empty ' . $roomOnlineUsersCount . ' User/s Found'], 422);
+            }
+            $delete = $room->delete();
             if ($delete) {
+                triggerPusher('room', 'room_status', $this->getAllRooms());
                 return 'done';
             } else {
                 return 'error';
@@ -72,6 +80,10 @@ class RoomsController extends Controller
             $leaveRoom = Online::where('user_id', $user->id)->first();
             Online::where('user_id', $user->id)->delete();
 
+
+            // update the online users count in the all rooms page
+            $this->update_online_rooms_users_counter();
+
             // Update When User Leave
             // Get Online User Count
             $this->getUserStatus($leaveRoom->room_id, $user->name . ' Leave The Room', 'offline');
@@ -80,6 +92,8 @@ class RoomsController extends Controller
             $this->create_online($user->id, $room_id);
         }
 
+        // update the online users count in the all rooms page
+        $this->update_online_rooms_users_counter();
         $this->getUserStatus($room_id, $user->name . ' Enter The Room');
         return 'done';
     }
@@ -89,6 +103,8 @@ class RoomsController extends Controller
         $user = Auth::user();
         // delete User from The first room
         Online::where('user_id', $user->id)->delete();
+        // update the online users count in the all rooms page
+        $this->update_online_rooms_users_counter();
         $this->getUserStatus($room_id, $user->name . ' Leave The Browser', 'offline');
     }
 
@@ -111,6 +127,11 @@ class RoomsController extends Controller
             triggerPusher($room_id . 'offline', 'leave_user', $array);
         }
 
+    }
+
+    protected function update_online_rooms_users_counter()
+    {
+        return triggerPusher('room', 'room_status', $this->getAllRooms());
     }
 
     protected function create_online($user_id, $room_id)

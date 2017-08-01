@@ -40,4 +40,9 @@ class MessagesController extends Controller
         }
     }
 
+    public function getAuthUser()
+    {
+        return Auth::user();
+    }
+
 }
