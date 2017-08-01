@@ -8,6 +8,9 @@ Vue.use(VueRouter);
 // Vue Mement
 var VueMoment = require('vue-moment');
 Vue.use(VueMoment);
+// Vue sticky scroll
+var stickyScroll = require('vue-sticky-scroll');
+
 // Pusher
 require('pusher-js')
 // define as a global variable
@@ -35,6 +38,7 @@ var allRooms = require('./components/rooms/allRooms.vue');
 var myRooms = require('./components/rooms/myRooms.vue');
 var chatBox = require('./components/chatbox/chatBox.vue');
 var sidebar = require('./components/includes/sidebar.vue');
+var profile = require('./components/profile/profile.vue');
 Vue.component('sidebar', sidebar);
 
 // Vue Router init
@@ -43,6 +47,9 @@ var route = new VueRouter();
 
 // Define some routes.
 route.map({
+    '/': {
+        component: allRooms
+    },
     '/addRoom': {
         component: addRoom
     },
@@ -55,6 +62,10 @@ route.map({
     '/chat/:room_id/:room_name': {
         name: '/chatBox',
         component: chatBox
+    },
+    '/profile/:user_id/:user_name': {
+        name: '/profile',
+        component: profile
     },
 });
 

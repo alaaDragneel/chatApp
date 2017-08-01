@@ -70,25 +70,56 @@ class RoomsController extends Controller
             // Leave Chat Room And Go To Another Room
             // delete User from The first room
             $leaveRoom = Online::where('user_id', $user->id)->first();
-            $leaveRoom->delete();
+            Online::where('user_id', $user->id)->delete();
 
             // Update When User Leave
-            $room = Room::where('id', $leaveRoom->room_id)->withCount('online')->first()->online_count;
-            triggerPusher($leaveRoom->room_id . 'offline', 'leave_user', $room);
+            // Get Online User Count
+            $this->getUserStatus($leaveRoom->room_id, $user->name . ' Leave The Room', 'offline');
 
             // add It to The Other room
             $this->create_online($user->id, $room_id);
         }
-        $room = Room::where('id', $room_id)->withCount('online')->first()->online_count;
-        triggerPusher($room_id . 'online', 'online_user', $room);
+
+        $this->getUserStatus($room_id, $user->name . ' Enter The Room');
         return 'done';
     }
 
-    public function create_online($user_id, $room_id)
+    public function getMeLeaving($room_id)
+    {
+        $user = Auth::user();
+        // delete User from The first room
+        Online::where('user_id', $user->id)->delete();
+        $this->getUserStatus($room_id, $user->name . ' Leave The Browser', 'offline');
+    }
+
+    protected function getUserStatus($room_id, $username, $type = 'online' )
+    {
+        // Get Online User Count
+        $room = Room::where('id', $room_id)->withCount('online')->first()->online_count;
+        // Get Online Users Who WIll Leave => all data Go To chatBox.vue to put it in the component
+        $onlineUsers = Online::where('room_id', $room_id)->with('user')->get();
+        $array = [
+            'count' => $room,
+            'users' => $onlineUsers,
+            'action' => $username
+        ];
+
+        if ($type == 'online') {
+            triggerPusher($room_id . 'online', 'online_user', $array);
+        } else {
+
+            triggerPusher($room_id . 'offline', 'leave_user', $array);
+        }
+
+    }
+
+    protected function create_online($user_id, $room_id)
     {
         $online = new Online();
         $online->user_id = $user_id;
         $online->room_id = $room_id;
         $online->save();
     }
+
+
 }

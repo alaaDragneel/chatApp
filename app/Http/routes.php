@@ -12,30 +12,52 @@
 */
 
 Route::get('/', function () {
-    return view('welcome');
+
+    if (\Auth::check()) {
+        return redirect('/home');
+    } else {
+        return redirect('/login');
+    }
+
 });
 
 Route::auth();
 
 Route::get('/home', 'HomeController@index');
 
-/*
-|--------------------------------------------------------------------------
-| Room Routes
-|--------------------------------------------------------------------------
-|
-*/
+Route::group(['middleware' => 'auth'], function () {
 
-Route::post('/addNewRoom', 'RoomsController@addNewRoom');
-Route::get('/getAllRooms', 'RoomsController@getAllRooms');
-Route::get('/myRooms', 'RoomsController@myRooms');
-Route::get('/deleteMyRoom/{id}', 'RoomsController@deleteMyRoom');
-Route::get('/getMeOnline/{room_id}', 'RoomsController@getMeOnline');
+    /*
+    |--------------------------------------------------------------------------
+    | Room Routes
+    |--------------------------------------------------------------------------
+    |
+    */
 
-/*
-|--------------------------------------------------------------------------
-| Message Routes
-|--------------------------------------------------------------------------
-|
-*/
-Route::post('/addNewMessage', 'MessagesController@addNewMessage');
+    Route::post('/addNewRoom', 'RoomsController@addNewRoom');
+    Route::get('/getAllRooms', 'RoomsController@getAllRooms');
+    Route::get('/myRooms', 'RoomsController@myRooms');
+    Route::get('/deleteMyRoom/{id}', 'RoomsController@deleteMyRoom');
+    Route::get('/getMeOnline/{room_id}', 'RoomsController@getMeOnline');
+    Route::get('/getMeLeaving/{room_id}', 'RoomsController@getMeLeaving');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Message Routes
+    |--------------------------------------------------------------------------
+    |
+    */
+
+    Route::post('/addNewMessage', 'MessagesController@addNewMessage');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Users Routes
+    |--------------------------------------------------------------------------
+    |
+    */
+
+    Route::post('/uploadAvatar', 'UserController@uploadAvatar');
+    Route::get('/getAuthUserAvatar', 'UserController@getAuthUserAvatar');
+
+});

@@ -379,3 +379,28 @@ th {
     min-height: 50rem;
 }
 /*lading Styles*/
+
+/* nav bar styles */
+.nav-pills li a {
+    color: #FFF;
+}
+
+.nav-pills li a:hover {
+    color: #41cac0;
+}
+.li-active,
+.li-active a,
+.open a{
+    color: #41cac0 !important;
+    background-color: #eee;
+    border-radius: 4px;
+}
+/* nav bar styles */
+
+/*activity styles*/
+.activity {
+    position: relative;
+    height: 200px;
+    overflow: scroll;
+}
+/*activity styles*/

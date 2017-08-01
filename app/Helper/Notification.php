@@ -8,5 +8,13 @@
 function triggerPusher($room_channel, $event, $data)
 {
     $pusher = new \Pusher(env('PUSHER_APP_KEY'), env('PUSHER_APP_SECRET'), env('PUSHER_APP_ID'), ['cluster' => env('PUSHER_APP_CLUSTER')]);
-    $pusher->trigger( $room_channel, $event, [$data] );
+    $pusher->trigger( $room_channel, $event, $data );
+}
+
+function getAvatar($avatar) {
+    if (file_exists($avatar)) {
+        return $avatar;
+    } else {
+        return url('/images/default.png');
+    }
 }
